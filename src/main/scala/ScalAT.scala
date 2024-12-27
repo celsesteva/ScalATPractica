@@ -146,8 +146,31 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
         addClause(-l(i) :: -l(j) :: List())
   }
 
-  //Adds the logaritic encoding of the at-most-one
-  def addAMOLog(x: List[Int]): Unit = ???
+  def log2(i: Int): Double = Math.log(i) / Math.log(2)
+
+  def numberOfVars(x: Int): Int = {
+    if(x<=0)
+      return 0;
+    ceil(log2(x)).toInt
+  }
+
+  def addAMOLog(x: List[Int]): Unit = {
+    val l = x.toArray
+    val nVars = l.length;
+    val numberOfNewClauses = numberOfVars(nVars);
+    for (j <- 0 until numberOfNewClauses) {
+      //println("newVar: " + j)
+      val newVarValue = newVar()
+      for (i <- 0 until nVars) {
+        if(i.toBinaryString.reverse.padTo(numberOfNewClauses, '0').reverse.mkString.charAt(j)=='0'){
+          addClause(-l(i) :: -newVarValue :: List())
+        }
+        else{
+          addClause(-l(i) :: newVarValue :: List())
+        }
+      }
+    }
+  }
 
   //Adds the encoding of the at-least-one.
   def addALO(l: List[Int]): Unit = addClause(l)
