@@ -159,7 +159,6 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
     val nVars = l.length;
     val numberOfNewClauses = numberOfVars(nVars);
     for (j <- 0 until numberOfNewClauses) {
-      //println("newVar: " + j)
       val newVarValue = newVar()
       for (i <- 0 until nVars) {
         if(i.toBinaryString.reverse.padTo(numberOfNewClauses, '0').reverse.mkString.charAt(j)=='0'){

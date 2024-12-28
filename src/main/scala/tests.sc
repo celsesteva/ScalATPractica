@@ -14,17 +14,19 @@ def addAMOLog(x: List[Int]): Unit = {
   val numberOfNewClauses = numberOfVars(nVars);
   for (j <- 0 until numberOfNewClauses) {
     //println("newVar: " + j)
-    val newVarValue = j
+    println
     for (i <- 0 until nVars) {
       if(i.toBinaryString.reverse.padTo(numberOfNewClauses, '0').reverse.mkString.charAt(j)=='0'){
-        println("1")
+        print(i.toBinaryString.reverse.padTo(numberOfNewClauses, '0').reverse.mkString)
+        println("\t 0")
       }
       else{
-        println("2")
+        print(i.toBinaryString.reverse.padTo(numberOfNewClauses, '0').reverse.mkString)
+        println("\t 1")
       }
     }
   }
 }
 
 
-addAMOLog(List(0,1,2,3,4,5))
+addAMOLog(List(0,1,2,3,4,5,6,7,8))
