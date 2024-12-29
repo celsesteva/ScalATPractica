@@ -36,11 +36,4 @@ object BuscaMines extends App{
   if (result.satisfiable) println(getQueensPositions)
 
 
-  def createPartialInitializedMap(n: Int, m: Int): Unit = {
-    val randomSeed = System.currentTimeMillis() // or System.nanoTime() for more precision
-    val rand = new Random(randomSeed)
-    val fillBoxes = rand.nextInt(n*m) //creates an int from 0 to n*m [0,n*m)
-
-
-  }
 }

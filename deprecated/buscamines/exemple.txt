@@ -1,4 +1,0 @@
-N M nmines
-casella_1_1 casella_1_2 ... casella_1_M
-...
-casella_N_1 casella_N_2 ... casella_N_M

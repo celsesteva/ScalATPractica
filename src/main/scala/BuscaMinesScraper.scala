@@ -47,7 +47,7 @@ object BuscaMinesScraper extends App{
     var solutionSection = false
     var problemData = ""
     var solutionData = ""
-    val baseFileName = url.split("/").last.replace(".htm", ".txt")
+    val baseFileName = url.split("/").last.replace(".a.htm", ".txt")
 
     val lines = str.split("\n")
 
