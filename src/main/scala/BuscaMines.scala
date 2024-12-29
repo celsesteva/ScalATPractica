@@ -1,6 +1,7 @@
 import scala.util.Random
 
 object BuscaMines extends App{
+  //TODO: no hi ha exemples amb X (no mina, però no indica quantes mines al costat), ni amb numerod e mines especificat.
   val e = new ScalAT("NQueens")
 
   //Nombre de reines
