@@ -267,20 +267,74 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
 
   }
 
+  //TODO: revisar logica: entrar totes les variables a x (fins a 2^n emplenant amb newVarBasura) i fer y copia (amb tots newVar diff tots nous)
+  // todo: després passar-ho al sorter i afegir les clausules de control
+  /*
+  ≤: afegim la cl`ausula -(yK+1)
+  ≥: afegim la cl`ausula (yK )
+  =: afegim les cl`ausules -(yK+1), (yK )
+   */
+  // todo: Exemple: x1 + x2 + x3 + x4 + x5 ≤ 4 ⇒ x1 + x2 + x3 + x4 + x5+xf + xf + xf ≤ 4 ∧ -xf (perquè -xf? especificament el -? s'ha de posar en algun lloc?)
+  // todo: comoprovar que funcioni.
+
   //Adds the encoding of an exactly-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
-  def addEK(x: List[Int], K: Int): Unit = ???
+  def addEK(x: List[Int], K: Int): Unit = {
+    val xLen = x.length
+    val powerOfTwo  = Math.pow(numberOfVars(xLen),2).toInt
+    val y = (1 to K).map(_ => newVar()).toList
+    val xfalse = -newVar()
+    val fakeVars = (1 to powerOfTwo - xLen).map(_ => xfalse)
+    val extendedX = x ++ fakeVars
+    addSorter(extendedX,y)
+
+    if (K >= 0 && K < y.length) {
+      addClause(-y(K+1-1) :: List())  //=: afegim les cl`ausules -(yK+1), (yK )
+      addClause(y(K-1) :: List())
+      //-1 pq y comença a 0
+    } else if (K < 0) {
+      throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
+    }
+  }
 
 
 
   //Adds the encoding of an at-least-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
-  def addALK(x: List[Int], K: Int): Unit = ???
+  def addALK(x: List[Int], K: Int): Unit = {
+    val xLen = x.length
+    val powerOfTwo  = Math.pow(numberOfVars(xLen),2).toInt
+    val y = (1 to K).map(_ => newVar()).toList
+    val xfalse = -newVar()
+    val fakeVars = (1 to powerOfTwo - xLen).map(_ => xfalse)
+    val extendedX = x ++ fakeVars
+    addSorter(extendedX,y)
+
+    if (K >= 0 && K < y.length) {
+      addClause(y(K-1) :: List())  //≥: afegim la cl`ausula (yK ) //-1 pq y comença a 0
+    } else if (K < 0) {
+      throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
+    }
+  }
 
   //Adds the encoding of an at-most-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
-  def addAMK(x: List[Int], K: Int): Unit = ???
+  def addAMK(x: List[Int], K: Int): Unit = {
+    //TODO: x can be empty, and K take any value from -infinity to infinity
+    val xLen = x.length
+    val powerOfTwo  = Math.pow(numberOfVars(xLen),2).toInt
+    val xfalse = -newVar()
+    val fakeVars = (1 to powerOfTwo - xLen).map(_ => xfalse)
+    val extendedX = x ++ fakeVars
+    val y = (1 to extendedX.length).map(_ => newVar()).toList
+    addSorter(extendedX,y)
 
+    if (K >= 0 && K < y.length) {
+      addClause(-y(K+1-1) :: List()) // ≤: afegim la cl`ausula (yK+1) //-1 pq y comença a 0
+    } else if (K < 0) {
+      throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
+    }
+  }
 
   //Adds a PB constraint of the form q[0]x[0] + q[1]x[1] + ... + q[n]x[n] <= K
   //q must be a list of non-negative coefficients, and x a list of literals.

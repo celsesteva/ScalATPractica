@@ -3,7 +3,7 @@ object NQueens extends App {
   val e = new ScalAT("NQueens")
 
   //Nombre de reines
-  val n = 250
+  val n = 8
 
   //tauler(i)(j) es cert sii a la casella (i,j) hi ha una reina
   val tauler: Array[Array[Int]] = e.newVar2DArray(n, n)
