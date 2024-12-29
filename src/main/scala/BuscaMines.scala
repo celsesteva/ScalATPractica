@@ -1,6 +1,6 @@
 import scala.util.Random
 
-object BuscaMines {
+object BuscaMines extends App{
   val e = new ScalAT("NQueens")
 
   //Nombre de reines
