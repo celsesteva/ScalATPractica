@@ -288,11 +288,16 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
     val extendedX = x ++ fakeVars
     addSorter(extendedX,y)
 
+    //TODO: revisar si això de posar-los quan estan al màxim (K a y.length està bé).
     if (K >= 0 && K < y.length) {
-      addClause(-y(K+1-1) :: List())  //=: afegim les cl`ausules -(yK+1), (yK )
-      addClause(y(K-1) :: List())
+      addClause(-y(K + 1 - 1) :: List()) //=: afegim les cl`ausules -(yK+1), (yK )
+      addClause(y(K - 1) :: List())
       //-1 pq y comença a 0
-    } else if (K < 0) {
+    }
+    else if(K >= 0 && K <= y.length){
+      addClause(y(K - 1) :: List())
+    }
+    else if (K < 0) {
       throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
     }
   }
@@ -310,7 +315,7 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
     val extendedX = x ++ fakeVars
     addSorter(extendedX,y)
 
-    if (K >= 0 && K < y.length) {
+    if (K >= 0 && K <= y.length) {
       addClause(y(K-1) :: List())  //≥: afegim la cl`ausula (yK ) //-1 pq y comença a 0
     } else if (K < 0) {
       throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
