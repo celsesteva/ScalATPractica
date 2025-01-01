@@ -1,5 +1,5 @@
 import java.io.File
-import scala.Console.{RED, RESET}
+import scala.Console.{GREEN, RED, RESET}
 import scala.io.Source
 import scala.util.{Random, Using}
 
@@ -14,6 +14,8 @@ object BuscaMinesTester extends App {
 
   val testFiles = getListOfFiles(testFolderPath)
   var numberOfTestThatSucceded = 0;
+
+  val numberOfSolutions = getListOfFiles(solFolderPath).filter(_.endsWith(".txt")).length
 
   testFiles.foreach { testFile =>
     val fileName = testFile.split('\\').last
@@ -64,13 +66,17 @@ object BuscaMinesTester extends App {
       System.err.println(s"File does not exist $solFile")
     }
   }
+  if(numberOfTestThatSucceded==numberOfSolutions){
+    println(s"${GREEN}ALL THE TESTS PASSED SUCCESSFULLY${RESET}") // Highlight differing characters in red)
+  }
+  else{
+    val failedTests = numberOfSolutions-numberOfTestThatSucceded
+    println(s"${RED} $failedTests FAILED TO PASS ${RESET}")
+  }
 
 }
 
 object BuscaMines extends App{
-  //TODO: no hi ha exemples amb X (no mina, però no indica quantes mines al costat), ni amb numerod e mines especificat.
-  //val e = new ScalAT("BuscaMines")
-
   def solveMineSweeper(test: Array[String]) = {
     val e = new ScalAT("BuscaMines")
 
@@ -127,96 +133,6 @@ object BuscaMines extends App{
     if (result.satisfiable) (result,getMinesPositions)
     else (result,"not satisfied")
   }
-
-  //var filePath = "testsBuscaMines/tests/000.txt"
-  /*val test = Using(Source.fromFile(filePath)) { source =>
-    source.getLines().toArray
-  }.getOrElse {
-    println("Error occurred while reading the file. Returning an empty array.")
-    Array.empty[String]  // Default value if file reading fails
-  }*/
-
-
-  /*println(test.mkString(" , "))
-  val buscamines = buscaMinesToArray(test)
-
-  val n = buscamines._1
-  val m = buscamines._2
-  val mines = buscamines._3
-  val tauler: Array[Array[Int]] = e.newVar2DArray(n, m)
-  println(n, m, mines)
-  val mineSweeper = buscamines._4
-  for(i <- mineSweeper)(println(i.mkString(" ")))
-  println()
-  for(i <- 0 until n){
-    for(j <- 0 until m){
-      print(tauler(i)(j) + " ")
-    }
-    println()
-  }*/
-
-  /*for(i <- 0 until n){
-    for(j <- 0 until m){
-      addConstraint(i,j);
-    }
-    println()
-  }*/
-
-  /*def addConstraint(row: Int, col: Int): Unit = {
-    val centerElement = mineSweeper(row)(col)
-    centerElement match {
-      case "-" => // do nothing (cas en el que no es sap res)
-      case "X" => e.addClause(-tauler(row)(col) :: List()) //marcar casella mineSweeper(row)(col) == false
-      case n => addConstraint3x3(centerElement,row,col) //exactlyN //get the 3x3 list and then add an exactlyK (K == n)
-    }
-  }*/
-  /*def addConstraint3x3(centerElement: String, row: Int, col: Int) = {
-    if(centerElement.equals("0")){
-      e.addClause(-tauler(row)(col) :: List())
-      val elements = getSurroundingElements(row,col).flatten
-      for(i <- elements) e.addClause(-i :: List())
-    }
-    else{
-      val clausula = tauler(row)(col)
-      e.addClause(-clausula :: List())
-      val elements = getSurroundingElements(row,col).flatten
-      e.addEK(elements,centerElement.toInt)
-    }
-  }*/
-
-  /*def getSurroundingElements(row: Int, col: Int) = {
-    val edgeElements = scala.collection.mutable.ListBuffer[List[Int]]()
-    for (di <- -1 to 1) {
-      val edgeElementsRow = scala.collection.mutable.ListBuffer[Int]()
-      for (dj <- -1 to 1) {
-        val rowD = row + di
-        val colD = col + dj
-        if(rowD>=0 && rowD<n && colD >= 0 && colD < m && !(rowD == row && colD == col))
-          edgeElementsRow += tauler(rowD)(colD)
-      }
-      edgeElements += edgeElementsRow.toList
-    }
-    edgeElements.toList
-  }*/
-
-  //todo: comprovar que això va bé i que si en falten, no cal posar resticcions addicionals, etc.
-  //si ha un lloc hi ham és mines, mirar que pugui emplenar el mapa sense petar.
-
-  /*if(mines!= -1)
-    e.addEK(tauler.flatten.toList,mines)*/
-
-
-  /*def getMinesPositions = tauler
-    .map(_.map((i: Int) => if (e.getValue(i)) "o " else "X "))
-    .map(_.mkString(""))
-    .mkString("\n")*/
-
-  /*
-  val result=e.solve()
-  println(result)
-  if (result.satisfiable) println(getMinesPositions)*/
-
-
 
   def buscaMinesToArray(buscaMinesString: Array[String]) /*Array[Array[String]]*/ = {
     val firstLine = buscaMinesString(0).split(" ")
