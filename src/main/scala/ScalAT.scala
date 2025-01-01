@@ -277,6 +277,7 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
   // todo: Exemple: x1 + x2 + x3 + x4 + x5 ≤ 4 ⇒ x1 + x2 + x3 + x4 + x5+xf + xf + xf ≤ 4 ∧ -xf (perquè -xf? especificament el -? s'ha de posar en algun lloc?)
   // todo: comoprovar que funcioni.
 
+  //todo: EK funciona perfecte, ALK i AMK no, copiar EK (les parts que toquen) en els ALK i AMKs.
   //Adds the encoding of an exactly-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
   def addEK(x: List[Int], K: Int): Unit = {
