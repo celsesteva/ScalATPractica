@@ -295,7 +295,7 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
     K match {
       case 0 => for (v <- x) addClause(-v :: List())
       case n if n == x.length =>  for (v <- x) addClause(v :: List())
-      case n =>
+      case _ =>
         addClause(-y(K):: List())
         addClause(y(K-1):: List())
     }

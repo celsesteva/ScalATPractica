@@ -96,17 +96,10 @@ object BuscaMines extends App{
     }
 
     def addConstraint3x3(centerElement: String, row: Int, col: Int) = {
-      if(centerElement.equals("0")){
-        e.addClause(-tauler(row)(col) :: List())
-        val elements = getSurroundingElements(row,col).flatten
-        for(i <- elements) e.addClause(-i :: List())
-      }
-      else{
-        val clausula = tauler(row)(col)
-        e.addClause(-clausula :: List())
-        val elements = getSurroundingElements(row,col).flatten
-        e.addEK(elements,centerElement.toInt)
-      }
+      val clausula = tauler(row)(col)
+      e.addClause(-clausula :: List())
+      val elements = getSurroundingElements(row,col).flatten
+      e.addEK(elements,centerElement.toInt)
     }
 
     def getSurroundingElements(row: Int, col: Int) = {
