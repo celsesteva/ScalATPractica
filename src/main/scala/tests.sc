@@ -33,3 +33,6 @@ def addAMOLog(x: List[Int]): Unit = {
 
 //val x = List(1,2,3,4,6)
 //val maxVars = Math.pow(numberOfVars(x.length),2);
+
+val x = List(1)
+println(x.length)

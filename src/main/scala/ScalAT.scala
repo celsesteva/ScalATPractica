@@ -205,8 +205,8 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
   //The lists contain literals
   //All variables must have been created with one of the newVar methods.
   def addSorter(x: List[Int], y: List[Int]) {
-    assert(x.length == y.length)
-    assert(x.nonEmpty)
+    assert(x.length == y.length, "x.length == y.lengthd")
+    assert(x.nonEmpty, "x.nonEmpty")
     if (x.length == 1) {
       addClause(-x(0) :: y(0) :: List())
       addClause(x(0) :: -y(0) :: List())
@@ -240,8 +240,8 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
   //The lists contain literals
   //All variables must have been created with one of the newVar methods.
   def addMerge(x: List[Int], xp: List[Int], y: List[Int]) {
-    assert(x.length == xp.length)
-    assert(x.nonEmpty)
+    assert(x.length == xp.length, "x.length == xp.length")
+    assert(x.nonEmpty, "x.nonEmpty")
     assert(2 * x.length == y.length)
 
     if (x.length == 1)
@@ -281,32 +281,51 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
   // x can be empty, and K take any value from -infinity to infinity
   def addEK(x: List[Int], K: Int): Unit = {
     val xLen = x.length
-    val powerOfTwo  = Math.pow(numberOfVars(xLen),2).toInt
-    val y = (1 to K).map(_ => newVar()).toList
-    val xfalse = -newVar()
-    val fakeVars = (1 to powerOfTwo - xLen).map(_ => xfalse)
+    val nVars = numberOfVars(xLen)
+    val powerOfTwo  = Math.pow(2,nVars).toInt
+    val xNewVar = newVar()
+    val numberOfFakeVars = powerOfTwo - xLen;
+    val fakeVars = (1 to numberOfFakeVars).map(_ => xNewVar)
     val extendedX = x ++ fakeVars
+    val y = (1 to extendedX.length).map(_ => newVar()).toList
+
+    addClause(-xNewVar :: List())
     addSorter(extendedX,y)
 
-    //TODO: revisar si això de posar-los quan estan al màxim (K a y.length està bé).
-    if (K >= 0 && K < y.length) {
-      addClause(-y(K + 1 - 1) :: List()) //=: afegim les cl`ausules -(yK+1), (yK )
-      addClause(y(K - 1) :: List())
-      //-1 pq y comença a 0
-    }
-    else if(K >= 0 && K <= y.length){
-      addClause(y(K - 1) :: List())
-    }
-    else if (K < 0) {
-      throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
+    K match {
+      case 0 => for (v <- x) addClause(-v :: List())
+      case n if n == x.length =>  for (v <- x) addClause(v :: List())
+      case n =>
+        addClause(-y(K):: List())
+        addClause(y(K-1):: List())
     }
   }
 
+  //TODO: revisar si això de posar-los quan estan al màxim (K a y.length està bé).
+  /*
+  Trivialment certa: no cal codificar-la (no afegim cap cl`ausula)
+E.g.: x1 + x2 + x3 + x4 ≤ 4
+Trivialment falsa: afegim la cl`ausula buida
+E.g.: x1 + x2 + x3 + x4 ≥ 5
+   */
+
+  //if (K >= 0 && K < y.length) {
+  //  addClause(-y(K + 1 - 1) :: List()) //=: afegim les cl`ausules -(yK+1), (yK )
+  //  addClause(y(K - 1) :: List())
+  //  //-1 pq y comença a 0
+  //}
+  //else if(K >= 0 && K <= y.length){
+  //  addClause(y(K - 1) :: List())
+  //}
+  //else if (K < 0) {
+  //  throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
+  //}
 
 
   //Adds the encoding of an at-least-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
   def addALK(x: List[Int], K: Int): Unit = {
+    assert(K>=0, "at least K, K must be bigger or equal 0")
     val xLen = x.length
     val powerOfTwo  = Math.pow(numberOfVars(xLen),2).toInt
     val y = (1 to K).map(_ => newVar()).toList
@@ -315,7 +334,21 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
     val extendedX = x ++ fakeVars
     addSorter(extendedX,y)
 
-    if (K >= 0 && K <= y.length) {
+    //restriccio trivialment certa: no cal codificar-la.
+    //E.g.: x1 + x2 + x3 + x4 ≤ 4
+    //Trivialment falsa: afegim la clàusula buida
+    //E.g.: x1 + x2 + x3 + x4 ≥ 5
+    if(x.isEmpty && K==0){
+      System.err.println("addALK: x is empty and K == 0")
+    }
+    else if(x.isEmpty && K>0){
+      System.err.println("addALK: x is empty and K == 0")
+      addClause(List())
+    }
+    else if(x.length<K){ //hi ha menys clausules que K minimes (at least K)
+      addClause(List())
+    }
+    else if (K >= 0) {
       addClause(y(K-1) :: List())  //≥: afegim la cl`ausula (yK ) //-1 pq y comença a 0
     } else if (K < 0) {
       throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
@@ -334,6 +367,10 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
     val y = (1 to extendedX.length).map(_ => newVar()).toList
     addSorter(extendedX,y)
 
+    //restriccio trivialment certa: no cal codificar-la.
+    //E.g.: x1 + x2 + x3 + x4 ≤ 4
+    //Trivialment falsa: afegim la clàusula buida
+    //E.g.: x1 + x2 + x3 + x4 ≥ 5
     if (K >= 0 && K < y.length) {
       addClause(-y(K+1-1) :: List()) // ≤: afegim la cl`ausula (yK+1) //-1 pq y comença a 0
     } else if (K < 0) {

@@ -47,6 +47,7 @@ object BuscaMinesScraper extends App{
     var solutionSection = false
     var problemData = ""
     var solutionData = ""
+    var mines = -1
     val baseFileName = url.split("/").last.replace(".a.htm", ".txt")
 
     val lines = str.split("\n")
@@ -60,6 +61,8 @@ object BuscaMinesScraper extends App{
           rows = l.split(" ")(1).toInt
         case l if l.startsWith("cols") =>
           cols = l.split(" ")(1).toInt
+        case l if l.startsWith("mines") =>
+          mines = l.split(" ")(1).toInt
 
         case l if l.startsWith("[problem]") =>
           problemSection = true
@@ -84,12 +87,9 @@ object BuscaMinesScraper extends App{
     val testFileName = s"testsBuscaMines/tests/$baseFileName"
     val solutionFileName = s"testsBuscaMines/sol/$baseFileName"
 
-    println(problemData)
-    println(solutionData)
-
     val testWriter = new PrintWriter(new File(testFileName))
     try {
-      testWriter.println(s"$rows $cols -1")
+      testWriter.println(s"$rows $cols $mines")
       testWriter.print(problemData.trim.replace('.','-')) // Write problem matrix
     } finally {
       testWriter.close()
