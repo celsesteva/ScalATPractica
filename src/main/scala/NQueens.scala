@@ -9,7 +9,7 @@ object NQueens extends App {
   val tauler: Array[Array[Int]] = e.newVar2DArray(n, n)
 
   //A cada fila hi ha una reina
-  for (i <- tauler) e.addEOQuad(i.toList)
+  for (i <- tauler) e.addlEOQuad(i.toList)
 
   //A cada columna hi ha una reina
   for (i <- tauler.transpose) e.addEOQuad(i.toList)
