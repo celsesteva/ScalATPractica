@@ -267,20 +267,12 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
 
   }
 
-  //TODO: revisar logica: entrar totes les variables a x (fins a 2^n emplenant amb newVarBasura) i fer y copia (amb tots newVar diff tots nous)
-  // todo: després passar-ho al sorter i afegir les clausules de control
-  /*
-  ≤: afegim la cl`ausula -(yK+1)
-  ≥: afegim la cl`ausula (yK )
-  =: afegim les cl`ausules -(yK+1), (yK )
-   */
-  // todo: Exemple: x1 + x2 + x3 + x4 + x5 ≤ 4 ⇒ x1 + x2 + x3 + x4 + x5+xf + xf + xf ≤ 4 ∧ -xf (perquè -xf? especificament el -? s'ha de posar en algun lloc?)
-  // todo: comoprovar que funcioni.
 
-  //todo: EK funciona perfecte, ALK i AMK no, copiar EK (les parts que toquen) en els ALK i AMKs.
   //Adds the encoding of an exactly-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
   def addEK(x: List[Int], K: Int): Unit = {
+    assert(K>=0, "K has to be at least 1 to use At Least K")
+    assert(K<=x.length, "K has to be at max K")
     val xLen = x.length
     val nVars = numberOfVars(xLen)
     val powerOfTwo  = Math.pow(2,nVars).toInt
@@ -294,89 +286,54 @@ class ScalAT(problemName: String = "", workingpath: String = "working/") {
     addSorter(extendedX,y)
 
     K match {
-      case 0 => for (v <- x) addClause(-v :: List())
-      case n if n == x.length =>  for (v <- x) addClause(v :: List())
+      case 0 =>
+        addClause(-y(K)::List()) //
+      case n if n==xLen =>
+        addClause(y(K-1)::List())
       case _ =>
         addClause(-y(K):: List())
         addClause(y(K-1):: List())
     }
   }
 
-  //TODO: revisar si això de posar-los quan estan al màxim (K a y.length està bé).
-  /*
-  Trivialment certa: no cal codificar-la (no afegim cap cl`ausula)
-E.g.: x1 + x2 + x3 + x4 ≤ 4
-Trivialment falsa: afegim la cl`ausula buida
-E.g.: x1 + x2 + x3 + x4 ≥ 5
-   */
-
-  //if (K >= 0 && K < y.length) {
-  //  addClause(-y(K + 1 - 1) :: List()) //=: afegim les cl`ausules -(yK+1), (yK )
-  //  addClause(y(K - 1) :: List())
-  //  //-1 pq y comença a 0
-  //}
-  //else if(K >= 0 && K <= y.length){
-  //  addClause(y(K - 1) :: List())
-  //}
-  //else if (K < 0) {
-  //  throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
-  //}
-
-
   //Adds the encoding of an at-least-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
   def addALK(x: List[Int], K: Int): Unit = {
-    assert(K>=0, "at least K, K must be bigger or equal 0")
+    assert(K>0, "K has to be at least 1 to use At Least K")
+    assert(K<=x.length, "K has to be at max K")
     val xLen = x.length
-    val powerOfTwo  = Math.pow(numberOfVars(xLen),2).toInt
-    val y = (1 to K).map(_ => newVar()).toList
-    val xfalse = -newVar()
-    val fakeVars = (1 to powerOfTwo - xLen).map(_ => xfalse)
+    val nVars = numberOfVars(xLen)
+    val powerOfTwo  = Math.pow(2,nVars).toInt
+    val xNewVar = newVar()
+    val numberOfFakeVars = powerOfTwo - xLen;
+    val fakeVars = (1 to numberOfFakeVars).map(_ => xNewVar)
     val extendedX = x ++ fakeVars
+    val y = (1 to extendedX.length).map(_ => newVar()).toList
+
+    addClause(-xNewVar :: List())
     addSorter(extendedX,y)
 
-    //restriccio trivialment certa: no cal codificar-la.
-    //E.g.: x1 + x2 + x3 + x4 ≤ 4
-    //Trivialment falsa: afegim la clàusula buida
-    //E.g.: x1 + x2 + x3 + x4 ≥ 5
-    if(x.isEmpty && K==0){
-      System.err.println("addALK: x is empty and K == 0")
-    }
-    else if(x.isEmpty && K>0){
-      System.err.println("addALK: x is empty and K == 0")
-      addClause(List())
-    }
-    else if(x.length<K){ //hi ha menys clausules que K minimes (at least K)
-      addClause(List())
-    }
-    else if (K >= 0) {
-      addClause(y(K-1) :: List())  //≥: afegim la cl`ausula (yK ) //-1 pq y comença a 0
-    } else if (K < 0) {
-      throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
-    }
+    addClause(y(K-1)::List())
   }
 
   //Adds the encoding of an at-most-K constraint.
   // x can be empty, and K take any value from -infinity to infinity
   def addAMK(x: List[Int], K: Int): Unit = {
-    //TODO: x can be empty, and K take any value from -infinity to infinity
+    assert(K>=0, "K has to be at least 0 to use At Most K")
+    assert(K<=x.length, "K has to be at max K")
     val xLen = x.length
-    val powerOfTwo  = Math.pow(numberOfVars(xLen),2).toInt
-    val xfalse = -newVar()
-    val fakeVars = (1 to powerOfTwo - xLen).map(_ => xfalse)
+    val nVars = numberOfVars(xLen)
+    val powerOfTwo  = Math.pow(2,nVars).toInt
+    val xNewVar = newVar()
+    val numberOfFakeVars = powerOfTwo - xLen;
+    val fakeVars = (1 to numberOfFakeVars).map(_ => xNewVar)
     val extendedX = x ++ fakeVars
     val y = (1 to extendedX.length).map(_ => newVar()).toList
+
+    addClause(-xNewVar :: List())
     addSorter(extendedX,y)
 
-    //restriccio trivialment certa: no cal codificar-la.
-    //E.g.: x1 + x2 + x3 + x4 ≤ 4
-    //Trivialment falsa: afegim la clàusula buida
-    //E.g.: x1 + x2 + x3 + x4 ≥ 5
-    if (K >= 0 && K < y.length) {
-      addClause(-y(K+1-1) :: List()) // ≤: afegim la cl`ausula (yK+1) //-1 pq y comença a 0
-    } else if (K < 0) {
-      throw new IllegalArgumentException("Unsatisfiable: K cannot be negative in this context.")
-    }
+    addClause(-y(K):: List())
   }
 
   //Adds a PB constraint of the form q[0]x[0] + q[1]x[1] + ... + q[n]x[n] <= K

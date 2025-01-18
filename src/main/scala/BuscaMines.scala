@@ -76,6 +76,20 @@ object BuscaMinesTester extends App {
 
 }
 
+object BuscaMinesSimpleTester extends App {
+  val fileName = "".replace("\\","/")
+  // Load the test file
+  val testContent = Using(Source.fromFile(fileName)) { source =>
+    source.getLines().toArray
+  }.getOrElse {
+    System.err.println(s"Error reading file: $fileName")
+    Array.empty[String]
+  }
+
+  val result = BuscaMines.solveMineSweeper(testContent)
+  println(result._2)
+}
+
 object BuscaMines extends App{
   def solveMineSweeper(test: Array[String]) = {
     val e = new ScalAT("BuscaMines")
@@ -102,10 +116,32 @@ object BuscaMines extends App{
     }
 
     def addConstraint3x3(centerElement: String, row: Int, col: Int) = {
-      val clausula = tauler(row)(col)
-      e.addClause(-clausula :: List())
-      val elements = getSurroundingElements(row,col).flatten
-      e.addEK(elements,centerElement.toInt)
+      e.addClause(-tauler(row)(col) :: List()) //element conté numero -> per tant fals.
+      val elements = getSurroundingElements(row,col).flatten //get surroundingElements retorna els elements de tauler(row)(col)
+      val el = centerElement.toInt;
+
+      if(el == 0){
+        for(clause <- elements) e.addClause(-clause :: List())
+      }
+      else if(el == 1){
+        e.addEOQuad(elements)
+        //e.addEOLog(elements)
+      }
+      else if(el==elements.length) {
+        for (clause <- elements) e.addClause(clause :: List())
+      }
+      else if(el > elements.length){
+        e.addClause(List()) //trivialment fals.
+      }
+      else if(el < 0){
+        e.addClause(List()) //trivialment fals.
+      }
+      else{
+        e.addEK(elements,el)
+        //e.addAMK(elements,el)
+        //if(el>0)
+        //e.addALK(elements,el)
+      }
     }
 
     def getSurroundingElements(row: Int, col: Int) = {
@@ -144,5 +180,6 @@ object BuscaMines extends App{
     val result = mapaBuscaMines.map(fila => fila.split(" "))
     (n,m,mines,result)
   }
-
 }
+
+
