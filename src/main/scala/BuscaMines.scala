@@ -164,7 +164,18 @@ object BuscaMines extends App{
       .map(_.mkString("").trim)
       .mkString("\n")
 
-    if (mines != -1) e.addEK(tauler.flatten.toList, mines)
+    if (mines != -1) {
+      if(mines == 0) {
+        for(clause <- tauler.flatten.toList) e.addClause(-clause :: List())
+      } else if(mines == 1) {
+        e.addEOQuad(tauler.flatten.toList)
+      }
+      else if(mines == tauler.flatten.toList.length) {
+          for(clause <- tauler.flatten.toList) e.addClause(clause :: List())
+      } else {
+          e.addEK(tauler.flatten.toList, mines)
+      }
+    }
     val result=e.solve()
     if (result.satisfiable) (result,getMinesPositions)
     else (result,"not satisfied")
