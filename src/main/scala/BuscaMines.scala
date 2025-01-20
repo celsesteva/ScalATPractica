@@ -169,13 +169,15 @@ object BuscaMines extends App{
       case 0 => for(clause <- tauler.flatten.toList) e.addClause(-clause :: List())
       case 1 =>
         //e.addEOQuad(tauler.flatten.toList)
-        e.addAMOLog(tauler.flatten.toList)
+        e.addEOLog(tauler.flatten.toList)
       case mines if mines == tauler.flatten.toList.length =>
         for(clause <- tauler.flatten.toList) e.addClause(clause :: List())
       case _ =>
         e.addEK(tauler.flatten.toList, mines)
     }
+
     val result=e.solve()
+
     if (result.satisfiable) (result,getMinesPositions)
     else (result,"not satisfied")
   }
