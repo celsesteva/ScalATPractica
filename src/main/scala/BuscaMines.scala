@@ -77,7 +77,7 @@ object BuscaMinesTester extends App {
 }
 
 object BuscaMinesSimpleTester extends App {
-  val fileName = "".replace("\\","/")
+  val fileName = "testsBuscaMines/tests/199.txt";
   // Load the test file
   val testContent = Using(Source.fromFile(fileName)) { source =>
     source.getLines().toArray
@@ -86,8 +86,12 @@ object BuscaMinesSimpleTester extends App {
     Array.empty[String]
   }
 
+  val startTime  = System.nanoTime();
   val result = BuscaMines.solveMineSweeper(testContent)
+  val endTime = System.nanoTime()
   println(result._2)
+  val elapsedTime = (endTime - startTime) / 1000000
+  println(elapsedTime)
 }
 
 object BuscaMines extends App{
@@ -120,27 +124,23 @@ object BuscaMines extends App{
       val elements = getSurroundingElements(row,col).flatten //get surroundingElements retorna els elements de tauler(row)(col)
       val el = centerElement.toInt;
 
-      if(el == 0){
-        for(clause <- elements) e.addClause(-clause :: List())
-      }
-      else if(el == 1){
-        e.addEOQuad(elements)
-        //e.addEOLog(elements)
-      }
-      else if(el==elements.length) {
-        for (clause <- elements) e.addClause(clause :: List())
-      }
-      else if(el > elements.length){
-        e.addClause(List()) //trivialment fals.
-      }
-      else if(el < 0){
-        e.addClause(List()) //trivialment fals.
-      }
-      else{
-        e.addEK(elements,el)
-        //e.addAMK(elements,el)
-        //if(el>0)
-        //e.addALK(elements,el)
+
+      el match {
+        case 0 => for(clause <- elements) e.addClause(-clause :: List())
+        case 1 =>
+          //e.addEOQuad(elements)
+          e.addEOLog(elements)
+        case el if el == elements.length =>
+          for (clause <- elements) e.addClause(clause :: List())
+        case el if el > elements.length =>
+          e.addClause(List()) //trivialment fals.
+        case el if el < 0 =>
+          e.addClause(List()) //trivialment fals.
+        case _ =>
+          e.addEK(elements,el)
+          //e.addAMK(elements,el)
+          //if(el>0)
+          //e.addALK(elements,el)
       }
     }
 
@@ -164,17 +164,16 @@ object BuscaMines extends App{
       .map(_.mkString("").trim)
       .mkString("\n")
 
-    if (mines != -1) {
-      if(mines == 0) {
-        for(clause <- tauler.flatten.toList) e.addClause(-clause :: List())
-      } else if(mines == 1) {
-        e.addEOQuad(tauler.flatten.toList)
-      }
-      else if(mines == tauler.flatten.toList.length) {
-          for(clause <- tauler.flatten.toList) e.addClause(clause :: List())
-      } else {
-          e.addEK(tauler.flatten.toList, mines)
-      }
+    mines match{
+      case -1 => //do nothing
+      case 0 => for(clause <- tauler.flatten.toList) e.addClause(-clause :: List())
+      case 1 =>
+        //e.addEOQuad(tauler.flatten.toList)
+        e.addAMOLog(tauler.flatten.toList)
+      case mines if mines == tauler.flatten.toList.length =>
+        for(clause <- tauler.flatten.toList) e.addClause(clause :: List())
+      case _ =>
+        e.addEK(tauler.flatten.toList, mines)
     }
     val result=e.solve()
     if (result.satisfiable) (result,getMinesPositions)
